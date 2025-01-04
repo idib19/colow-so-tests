@@ -1,12 +1,13 @@
 import request from 'supertest';
-import { app } from '../../index';
+import { app } from '../setup';
 import { Master } from '../../domain/entities/Master';
-import { Transaction } from '../../domain/entities/Transaction';
+import { createTestMaster, createTestTransaction } from '../helpers/testHelpers';
+
 
 describe('ColowSo API Endpoints', () => {
   describe('POST /api/colowso/load-master', () => {
     it('should load master account', async () => {
-      const master = await Master.create({ country: 'TestCountry', balance: 0 });
+      const master = await createTestMaster();
 
       const loadData = {
         masterId: master._id,
@@ -27,26 +28,13 @@ describe('ColowSo API Endpoints', () => {
 
   describe('GET /api/colowso/transactions', () => {
     it('should return all transactions', async () => {
-      const master = await Master.create({ country: 'TestCountry' });
+      const master = await createTestMaster();
       
       // Create test transactions
-      await Transaction.create([
-        {
-          issuerId: master._id,
-          issuerModel: 'Master',
-          senderInfo: { name: 'Test1', contact: 'test1@example.com' },
-          receiverInfo: { name: 'Test2', contact: 'test2@example.com' },
-          amount: 100
-        },
-        {
-          issuerId: master._id,
-          issuerModel: 'Master',
-          senderInfo: { name: 'Test3', contact: 'test3@example.com' },
-          receiverInfo: { name: 'Test4', contact: 'test4@example.com' },
-          amount: 200
-        }
-      ]);
+      await createTestTransaction(master.id, 'Master', 100);
+      await createTestTransaction(master.id, 'Master', 200);
 
+       
       const response = await request(app)
         .get('/api/colowso/transactions')
         .expect(200);

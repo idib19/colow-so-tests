@@ -16,6 +16,12 @@ export class MasterService implements IMasterService {
     return transaction.save();
   }
 
+  async getAllMasterTransactions(masterId: string) {
+    const transactions = await Transaction.find({issuerId : masterId});
+    return transactions;
+  }
+
+
   async loadCard(cardLoadData: any) {
     const cardLoad = new CardLoad({
       ...cardLoadData,
@@ -31,7 +37,10 @@ export class MasterService implements IMasterService {
 
   async getBalance(masterId: string) {
     const master = await Master.findById(masterId);
-    return master?.balance || 0;
+    if (!master) {
+      throw new Error('Unauthorized request');
+    }
+    return master.balance ;
   }
 
   async getMetrics(masterId: string) {

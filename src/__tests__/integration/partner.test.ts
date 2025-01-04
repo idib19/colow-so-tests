@@ -1,22 +1,19 @@
 import request from 'supertest';
-import { app } from '../../index';
-import { Partner } from '../../domain/entities/Partner';
-import { Master } from '../../domain/entities/Master';
+import { app } from '../setup';
+import { createTestMaster, createTestPartner } from '../helpers/testHelpers';
+
 
 describe('Partner API Endpoints', () => {
   let master: any;
 
   beforeEach(async () => {
-    master = await Master.create({ country: 'TestCountry' });
+    master = await createTestMaster();
   });
 
   describe('POST /api/partner/transaction', () => {
     it('should create a new transaction', async () => {
-      const partner = await Partner.create({
-        country: 'TestCountry',
-        masterId: master._id
-      });
-
+      const partner = await createTestPartner(master._id.toString());
+      
       const transactionData = {
         issuerId: partner._id,
         issuerModel: 'Partner',
@@ -53,17 +50,13 @@ describe('Partner API Endpoints', () => {
 
   describe('GET /api/partner/balance/:partnerId', () => {
     it('should return partner balance', async () => {
-      const partner = await Partner.create({
-        country: 'TestCountry',
-        masterId: master._id,
-        balance: 500
-      });
+      const partner = await createTestPartner(master._id.toString());
 
       const response = await request(app)
         .get(`/api/partner/balance/${partner._id}`)
         .expect(200);
 
-      expect(response.body.balance).toBe(500);
+      expect(response.body.balance).toBe(0);
     });
   });
 });

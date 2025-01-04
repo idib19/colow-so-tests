@@ -15,4 +15,14 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/__tests__/**/*.ts',
   ],
+  testPathIgnorePatterns: [
+    "/node_modules/",
+    "/dist/",
+    "/build/",
+    "/coverage/",
+    "/__mocks__/",
+    "/src/__tests__/helpers/",
+    "/src/__tests__/setup.ts",
+    ".*\\.skip\\.test\\.ts$"
+  ],
 };

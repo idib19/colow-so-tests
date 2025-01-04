@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { PartnerController } from '../controllers/partner.controller';
+import { PartnerController } from '../controllers/PartnerController';
 
 const router = Router();
 const controller = new PartnerController();
 
 router.post('/transaction', controller.createTransaction);
+router.get('/balance/:partnerId', controller.getBalance);
 router.post('/card-load', controller.loadCard);
-router.get('/balance', controller.getBalance);
 router.get('/metrics', controller.getMetrics);
 
 export default router;

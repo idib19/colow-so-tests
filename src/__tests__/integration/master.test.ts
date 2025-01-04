@@ -1,6 +1,6 @@
 import request from 'supertest';
-import { app } from '../../index';
-import { createTestMaster, createTestTransaction } from './testUtils';
+import { app } from '../setup';
+import { createTestMaster, createTestTransaction } from '../helpers/testHelpers';
 import { CreateTransactionDTO } from '../../application/dtos';
 
 describe('Master API Endpoints', () => {
@@ -10,7 +10,7 @@ describe('Master API Endpoints', () => {
     // Setup base test data
     const master = await createTestMaster('TestCountry', 1000);
     masterData = {
-      _id: master._id.toString(),
+      _id: master.id.toString(),
       country: master.country,
       balance: master.balance
     };
@@ -67,7 +67,9 @@ describe('Master API Endpoints', () => {
     });
   });
 
+  // test for getting the balance of a master
   describe('GET /api/master/balance/:masterId', () => {
+
     it('should return master balance', async () => {
       const response = await request(app)
         .get(`/api/master/balance/${masterData._id}`)

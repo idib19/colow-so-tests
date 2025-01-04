@@ -1,19 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es2018",
-    "module": "commonjs",
+    "target": "es6",
+    "module": "commonjs", 
     "outDir": "./dist",
+    "rootDir": "./",
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "baseUrl": "./",                      // Add this
-    "paths": {                            // Add this
-      "@/*": ["src/*"]
-    }
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "public/main.ts"],
   "exclude": ["node_modules"]
 }

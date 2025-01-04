@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { ColowSoController } from '../controllers/colowso.controller';
+import { ColowSoController } from '../controllers/ColowSoController';
 
 const router = Router();
 const controller = new ColowSoController();
