@@ -16,6 +16,7 @@ describe('Master API Endpoints', () => {
     };
   });
 
+  // test for creating a transaction
   describe('POST /api/master/transaction', () => {
     it('should create a new transaction', async () => {
       const transactionData: CreateTransactionDTO = {
@@ -88,6 +89,7 @@ describe('Master API Endpoints', () => {
     });
   });
 
+  // test for getting the metrics of a master
   describe('GET /api/master/metrics/:masterId', () => {
     beforeEach(async () => {
       // Create test transactions for metrics
@@ -108,4 +110,17 @@ describe('Master API Endpoints', () => {
       });
     });
   });
+
+
+  it('should return 400 when amount exceeds master balance', async () => {
+
+    const largeTransaction = createTestTransaction(masterData._id, 'Master', 2000);
+    
+    
+    await request(app)
+      .post('/api/master/transaction')
+      .send(largeTransaction)
+      .expect(400);
+  });
+
 });

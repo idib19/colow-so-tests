@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { MasterService } from '../../application/services/MasterService';         
-import { CreateTransactionDTO } from '../../application/dtos';
+import { CreateTransactionDTO , CreateCardLoadDTO , CreateTransferDTO} from '../../application/dtos';
 import { TransactionValidator } from '../../application/validators/transactionValidator';
 
 
@@ -47,7 +47,22 @@ export class MasterController {
 
   loadCard = async (req: Request, res: Response) => {
     try {
-      const cardLoad = await this.service.loadCard(req.body);
+      const cardLoadData: CreateCardLoadDTO = req.body;
+
+      // Validate required fields
+      if (!cardLoadData || 
+          typeof cardLoadData.issuerId !== 'string' ||
+          typeof cardLoadData.cardId !== 'string' ||
+          !['Master', 'Partner'].includes(cardLoadData.issuerModel) ||
+          typeof cardLoadData.amount !== 'number' ||
+          cardLoadData.amount <= 0 ||
+          !Number.isFinite(cardLoadData.amount)) {
+        return res.status(400).json({
+          error: 'Invalid card load data. Required fields: issuerId (string), cardId (string), issuerModel (Master|Partner), amount (positive number)'
+        });
+      }
+
+      const cardLoad = await this.service.loadCard(cardLoadData);
       res.status(201).json(cardLoad);
     } catch (error) {
       res.status(500).json({ error: 'Failed to load card' });
@@ -56,7 +71,22 @@ export class MasterController {
 
   createTransfer = async (req: Request, res: Response) => {
     try {
-      const transfer = await this.service.createTransfer(req.body);
+      const transferData: CreateTransferDTO = req.body;
+
+      // Validate required fields
+      if (!transferData ||
+          typeof transferData.issuerId !== 'string' ||
+          !transferData.type ||
+          ![1, 2].includes(transferData.type) ||
+          typeof transferData.amount !== 'number' ||
+          transferData.amount <= 0 ||
+          !Number.isFinite(transferData.amount)) {
+        return res.status(400).json({
+          error: 'Invalid transfer data. Required fields: issuerId (string), type (1|2), amount (positive number)'
+        });
+      }
+
+      const transfer = await this.service.createTransfer(transferData);
       res.status(201).json(transfer);
     } catch (error) {
       res.status(500).json({ error: 'Failed to create transfer' });

@@ -1,4 +1,4 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { MongoMemoryServer, MongoMemoryReplSet } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { app } from '../setup';
 import supertest from 'supertest';
@@ -11,12 +11,24 @@ import { Types } from 'mongoose';
 // Test request utility
 export const testRequest = supertest(app);
 
+type TestDBConfig = {
+  useReplica?: boolean;
+  replicaCount?: number;
+};
+
 // Database setup and teardown
-export const setupTestDB = () => {
-  let mongod: MongoMemoryServer;
+export const setupTestDB = (config: TestDBConfig = { useReplica: false, replicaCount: 3 }) => {
+  let mongod: MongoMemoryServer | MongoMemoryReplSet;
 
   beforeAll(async () => {
-    mongod = await MongoMemoryServer.create();
+    if (config.useReplica) {
+      mongod = await MongoMemoryReplSet.create({
+        replSet: { count: config.replicaCount },
+      });
+    } else {
+      mongod = await MongoMemoryServer.create();
+    }
+    
     const uri = mongod.getUri();
     await mongoose.connect(uri);
   });
@@ -34,6 +46,23 @@ export const setupTestDB = () => {
   });
 };
 
+// Helper for creating person info in tests
+export const createPersonInfo = (
+  firstname: string,
+  lastname: string,
+  idCardNumber: string,
+  phoneNumber: string,
+  email: string
+): PersonInfo => ({
+  firstname,
+  lastname,
+  idCardNumber,
+  city: 'TestCity',
+  phoneNumber,
+  email,
+  reason: 'Test'
+});
+
 // Test data creation utilities
 export const createTestMaster = async (country: string = 'TestCountry', balance: number = 0) => {
   return await Master.create({ country, balance });
@@ -48,31 +77,23 @@ export const createTestTransaction = async (
   issuerModel: 'Master' | 'Partner',
   amount: number,
 ) => {
-  const senderInfo: PersonInfo = {
-    firstname: 'John',
-    lastname: 'Doe',
-    idCardNumber: 'ID123',
-    city: 'TestCity',
-    phoneNumber: '1234567890',
-    email: 'john@example.com',
-    reason: 'Test transfer'
-  };
-
-  const receiverInfo: PersonInfo = {
-    firstname: 'Jane',
-    lastname: 'Doe',
-    idCardNumber: 'ID456',
-    city: 'TestCity',
-    phoneNumber: '0987654321',
-    email: 'jane@example.com',
-    reason: 'Test receive'
-  };
-
   return await Transaction.create({
     issuerId: new Types.ObjectId(issuerId),
     issuerModel,
-    senderInfo,
-    receiverInfo,
+    senderInfo: createPersonInfo(
+      'John',
+      'Doe',
+      'ID123',
+      '1234567890',
+      'john@example.com'
+    ),
+    receiverInfo: createPersonInfo(
+      'Jane',
+      'Doe',
+      'ID456',
+      '0987654321',
+      'jane@example.com'
+    ),
     amount
   });
 };

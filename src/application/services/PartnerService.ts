@@ -7,19 +7,94 @@ import { getCardLoadsByIssuerId, calculateTotalCardLoadAmount } from '../../doma
 
 export class PartnerService implements IPartnerService {
   async createTransaction(transactionData: any) {
+
+    // First get the master and check balance
+    const partner = await Partner.findById(transactionData.issuerId);
+    if (!partner) {
+      throw new Error('Partner not found');
+    }
+
+    // Check if partner has sufficient balance
+    if (partner.balance < transactionData.amount) {
+      throw new Error('Insufficient balance');
+    }
+
+    // Create transaction
     const transaction = new Transaction({
       ...transactionData,
       issuerModel: 'Partner'
     });
-    return transaction.save();
+
+    // Use a session to ensure atomicity
+    const session = await Transaction.startSession();
+    try {
+      session.startTransaction();
+
+      // Save the transaction
+      await transaction.save({ session });
+
+      // Update partner's balance
+      await Partner.findByIdAndUpdate(
+        partner.id,
+        { $inc: { balance: -transactionData.amount } },
+        { session }
+      );
+
+
+      await session.commitTransaction();
+      return transaction;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
   }
 
+
+  async getAllPartnerTransactions(partnerId: string) {
+    const transactions = await Transaction.find({issuerId : partnerId});
+    return transactions;
+  }
+
+
   async loadCard(cardLoadData: any) {
+
+    // First get the partner and check balance
+    const partner = await Partner.findById(cardLoadData.issuerId);
+    if (!partner) {
+      throw new Error('Partner not found');
+    }
+
+    // Check if partner has sufficient balance
+    if (partner.balance < cardLoadData.amount) {
+      throw new Error('Insufficient balance');
+    }
+
+    // Create card load
     const cardLoad = new CardLoad({
       ...cardLoadData,
       issuerModel: 'Partner'
     });
-    return cardLoad.save();
+
+    // Use a session to ensure atomicity
+    const session = await CardLoad.startSession();
+    try {
+      session.startTransaction();
+      await cardLoad.save({ session });
+      await Partner.findByIdAndUpdate(
+        partner.id,
+        { $inc: { balance: cardLoadData.amount } },
+        { session }
+      );
+      await session.commitTransaction();
+      return cardLoad;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
   }
 
   async getBalance(partnerId: string) {

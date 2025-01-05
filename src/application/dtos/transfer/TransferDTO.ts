@@ -12,3 +12,4 @@ export interface TransferResponseDTO {
   createdAt: Date;
   updatedAt: Date;
 }
+

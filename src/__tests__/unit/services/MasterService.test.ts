@@ -12,9 +12,13 @@ describe('MasterService', () => {
 
   describe('createTransaction', () => {
     it('should create a new transaction', async () => {
-      const masterId = new mongoose.Types.ObjectId();
+      const master = await Master.create({
+        country: 'TestCountry',
+        balance: 1000
+      });
+
       const transactionData = {
-        issuerId: masterId.toString(),
+        issuerId: master._id.toString(),
         issuerModel: 'Master' as const,
         senderInfo: {
           firstname: 'John',

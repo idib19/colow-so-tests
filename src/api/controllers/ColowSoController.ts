@@ -10,8 +10,11 @@ export class ColowSoController {
 
   loadMasterAccount = async (req: Request, res: Response) => {
     try {
+
       await this.service.loadMasterAccount(req.body.masterId, req.body.amount);
+
       res.status(200).json({ message: 'Master account loaded successfully' });
+      
     } catch (error) {
       res.status(500).json({ error: 'Failed to load master account' });
     }

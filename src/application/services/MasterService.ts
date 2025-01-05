@@ -8,13 +8,51 @@ import { getTransfersByIssuerId, calculateTotalTransferAmount } from '../../doma
 import { getCardLoadsByIssuerId, calculateTotalCardLoadAmount } from '../../domain/functions/cardLoadFunctions';
 
 export class MasterService implements IMasterService {
+  
   async createTransaction(transactionData: any) {
+    // First get the master and check balance
+    const master = await Master.findById(transactionData.issuerId);
+    if (!master) {
+      throw new Error('Master not found');
+    }
+
+    // Check if master has sufficient balance
+    if (master.balance < transactionData.amount) {
+      throw new Error('Insufficient balance');
+    }
+
+    // Create transaction
     const transaction = new Transaction({
       ...transactionData,
       issuerModel: 'Master'
     });
-    return transaction.save();
+
+    // Use a session to ensure atomicity
+    const session = await Transaction.startSession();
+    try {
+      session.startTransaction();
+
+      // Save the transaction
+      await transaction.save({ session });
+
+      // Update master's balance
+      await Master.findByIdAndUpdate(
+        master.id,
+        { $inc: { balance: -transactionData.amount } },
+        { session }
+      );
+
+      await session.commitTransaction();
+      return transaction;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
   }
+
+
 
   async getAllMasterTransactions(masterId: string) {
     const transactions = await Transaction.find({issuerId : masterId});
@@ -23,11 +61,41 @@ export class MasterService implements IMasterService {
 
 
   async loadCard(cardLoadData: any) {
+    // First get the master and check balance
+    const master = await Master.findById(cardLoadData.issuerId);
+    if (!master) {
+      throw new Error('Master not found');
+    }
+
+    // Check if master has sufficient balance
+    if (master.balance < cardLoadData.amount) {
+      throw new Error('Insufficient balance');
+    }
+
+    // Create card load
     const cardLoad = new CardLoad({
       ...cardLoadData,
       issuerModel: 'Master'
     });
-    return cardLoad.save();
+
+    // Use a session to ensure atomicity
+    const session = await CardLoad.startSession();
+    try {
+      session.startTransaction();
+      await cardLoad.save({ session });
+      await Master.findByIdAndUpdate(
+        master.id,
+        { $inc: { balance: cardLoadData.amount } },
+        { session }
+      );
+      await session.commitTransaction();
+      return cardLoad;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
   }
 
   async createTransfer(transferData: any) {

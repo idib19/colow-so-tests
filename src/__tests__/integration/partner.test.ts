@@ -12,7 +12,7 @@ describe('Partner API Endpoints', () => {
 
   describe('POST /api/partner/transaction', () => {
     it('should create a new transaction', async () => {
-      const partner = await createTestPartner(master._id.toString());
+      const partner = await createTestPartner(master._id.toString(), 'TestCountry', 500);
       
       const transactionData = {
         issuerId: partner._id,
@@ -50,13 +50,13 @@ describe('Partner API Endpoints', () => {
 
   describe('GET /api/partner/balance/:partnerId', () => {
     it('should return partner balance', async () => {
-      const partner = await createTestPartner(master._id.toString());
+      const partner = await createTestPartner(master._id.toString() , 'TestCountry', 5000);
 
       const response = await request(app)
         .get(`/api/partner/balance/${partner._id}`)
         .expect(200);
 
-      expect(response.body.balance).toBe(0);
+      expect(response.body.balance).toBe(5000);
     });
   });
 });

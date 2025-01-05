@@ -1,26 +1,25 @@
 import { PartnerService } from '../../../application/services/PartnerService';
 import { Partner } from '../../../domain/entities/Partner';
 import { Master } from '../../../domain/entities/Master';
-import mongoose from 'mongoose';
+import { createTestPartner, createTestMaster } from '../../helpers/testHelpers';
 
 describe('PartnerService', () => {
   let service: PartnerService;
   let master: any;
-
+  let partner: any;
+  
   beforeEach(async () => {
     service = new PartnerService();
-    master = await Master.create({ country: 'TestCountry' });
+    master = await createTestMaster();
+    partner = await createTestPartner(master._id.toString() , 'TestCountry', 500);
   });
 
   describe('createTransaction', () => {
     it('should create a new transaction', async () => {
-      const partner = await Partner.create({
-        country: 'TestCountry',
-        masterId: master._id
-      });
+  
 
       const transactionData = {
-        issuerId: partner._id.toString(),
+        issuerId: partner.id.toString(),
         issuerModel: 'Partner' as const,
         senderInfo: {
           firstname: 'John',
