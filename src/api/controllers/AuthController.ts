@@ -56,7 +56,6 @@ export class AuthController {
 
       const result = await this.authService.registerMaster(
         registrationData,
-        adminId // Pass the admin ID for audit purposes
       );
 
       res.status(201).json(result);

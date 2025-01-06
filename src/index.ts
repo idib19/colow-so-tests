@@ -27,7 +27,7 @@ export const createApp = () => {
   // Protected routes
   app.use('/api/master', authMiddleware(['master']), masterRoutes);
   app.use('/api/partner', authMiddleware(['partner']), partnerRoutes);
-  app.use('/api/colowso', authMiddleware(['admin']), colowsoRoutes);
+  app.use('/api/colowso', authMiddleware(['admin-colowso']), colowsoRoutes);
 
   // Error handling middleware
   app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {

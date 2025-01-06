@@ -2,9 +2,11 @@ import request from 'supertest';
 import { app } from '../setup';
 import { createTestMaster, createTestTransaction } from '../helpers/testHelpers';
 import { CreateTransactionDTO } from '../../application/dtos';
+import { generateTestToken } from '../helpers/auth.helper';
 
 describe('Master API Endpoints', () => {
   let masterData: { _id: string; country: string; balance: number };
+  const masterToken = generateTestToken('master');
 
   beforeEach(async () => {
     // Setup base test data
@@ -45,6 +47,7 @@ describe('Master API Endpoints', () => {
 
       const response = await request(app)
         .post('/api/master/transaction')
+        .set('Authorization', `Bearer ${masterToken}`)
         .send(transactionData)
         .expect(201);
 
@@ -63,6 +66,7 @@ describe('Master API Endpoints', () => {
 
       await request(app)
         .post('/api/master/transaction')
+        .set('Authorization', `Bearer ${masterToken}`)
         .send(invalidData)
         .expect(400);
     });
@@ -74,6 +78,7 @@ describe('Master API Endpoints', () => {
     it('should return master balance', async () => {
       const response = await request(app)
         .get(`/api/master/balance/${masterData._id}`)
+        .set('Authorization', `Bearer ${masterToken}`)
         .expect(200);
 
       expect(response.body).toEqual({
@@ -85,6 +90,7 @@ describe('Master API Endpoints', () => {
       const nonExistentId = '507f1f77bcf86cd799439011';
       await request(app)
         .get(`/api/master/balance/${nonExistentId}`)
+        .set('Authorization', `Bearer ${masterToken}`)
         .expect(404);
     });
   });
@@ -102,6 +108,7 @@ describe('Master API Endpoints', () => {
     it('should return master metrics', async () => {
       const response = await request(app)
         .get(`/api/master/metrics/${masterData._id}`)
+        .set('Authorization', `Bearer ${masterToken}`)
         .expect(200);
 
       expect(response.body).toMatchObject({
@@ -119,6 +126,7 @@ describe('Master API Endpoints', () => {
     
     await request(app)
       .post('/api/master/transaction')
+      .set('Authorization', `Bearer ${masterToken}`)
       .send(largeTransaction)
       .expect(400);
   });

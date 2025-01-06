@@ -76,7 +76,7 @@ export class AuthService {
     return user;
   }
 
-  async registerMaster(userData: RegistrationDTO, adminId: string) {
+  async registerMaster(userData: RegistrationDTO) {
     // Create user account of type master
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 

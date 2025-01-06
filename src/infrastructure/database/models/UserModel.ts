@@ -7,7 +7,7 @@ export interface IUser extends Document {
   password: string;
   email: string;
   name: string;
-  role: 'master' | 'partner' | 'colowso';
+  role: 'master' | 'partner' | 'admin-colowso';
   entityId: string;
   isActive: boolean;
   lastLogin?: Date;
@@ -23,12 +23,12 @@ const UserSchema = new Schema({
   role: { 
     type: String, 
     required: true, 
-    enum: ['master', 'partner', 'colowso'] 
+    enum: ['master', 'partner', 'admin-colowso'] 
   },
   entityId: { 
-    type: Schema.Types.ObjectId, 
+    type: String, 
     required: true, 
-    refPath: 'role' 
+    refPath: 'master | partner' 
   },
   isActive: { type: Boolean, default: true },
   lastLogin: { type: Date }

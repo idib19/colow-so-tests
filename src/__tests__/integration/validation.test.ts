@@ -2,6 +2,7 @@ import request from 'supertest';
 import { app } from '../setup';
 import { createTestMaster, createTestPartner } from '../helpers/testHelpers';
 import mongoose from 'mongoose';
+import { generateTestToken } from '../helpers/auth.helper';
 
 describe('API Validation Tests', () => {
   describe('Transaction Validation', () => {
@@ -13,6 +14,7 @@ describe('API Validation Tests', () => {
     });
 
     it('should validate required fields in transaction creation', async () => {
+      const masterToken = generateTestToken('master');
       const incompleteData = {
         issuerId: masterId,
         // Missing other required fields
@@ -21,6 +23,7 @@ describe('API Validation Tests', () => {
       const response = await request(app)
         .post('/api/master/transaction')
         .send(incompleteData)
+        .set('Authorization', `Bearer ${masterToken}`)
         .expect(400);
 
       expect(response.body.error).toBe('Invalid data.');
@@ -51,9 +54,11 @@ describe('API Validation Tests', () => {
         amount: -100
       };
 
+      const masterToken = generateTestToken('master');
       const response = await request(app)
         .post('/api/master/transaction')
         .send(invalidData)
+        .set('Authorization', `Bearer ${masterToken}`)
         .expect(400);
 
       expect(response.body.error).toBe('Invalid data.');
@@ -83,10 +88,11 @@ describe('API Validation Tests', () => {
         },
         amount: 100
       };
-
+      const masterToken = generateTestToken('master');
       const response = await request(app)
         .post('/api/master/transaction')
         .send(invalidData)
+        .set('Authorization', `Bearer ${masterToken}`)  
         .expect(400);
 
       expect(response.body.error).toBe('Invalid data.');

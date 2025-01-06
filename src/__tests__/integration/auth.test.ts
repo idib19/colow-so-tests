@@ -1,33 +1,10 @@
 import request from 'supertest';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose from 'mongoose';
-import { createApp } from '../../index';
+import { app } from '../setup';
 import { UserModel } from '../../infrastructure/database/models/UserModel';
 import bcrypt from 'bcrypt';
+import mongoose from 'mongoose';
 
 describe('Auth Integration Tests', () => {
-  let mongoServer: MongoMemoryServer;
-  let app: Express.Application;
-
-  beforeAll(async () => {
-    // Create in-memory MongoDB instance
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
-    await mongoose.connect(mongoUri);
-
-    // Create the Express app
-    app = createApp();
-  });
-
-  afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
-  });
-
-  beforeEach(async () => {
-    // Clear the database before each test
-    await UserModel.deleteMany({});
-  });
 
   describe('POST /api/auth/login', () => {
     beforeEach(async () => {
@@ -39,7 +16,7 @@ describe('Auth Integration Tests', () => {
         email: 'test@test.com',
         name: 'Test User',
         role: 'master',
-        entityId: new mongoose.Types.ObjectId(),
+        entityId: 'not-assigned',
         isActive: true
       });
     });
@@ -55,6 +32,7 @@ describe('Auth Integration Tests', () => {
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('token');
       expect(response.body.user).toHaveProperty('email', 'test@test.com');
+      expect(response.body.user).toHaveProperty('role', 'master');
     });
 
     it('should fail with invalid credentials', async () => {
@@ -69,6 +47,29 @@ describe('Auth Integration Tests', () => {
       expect(response.body).toHaveProperty('message', 'Invalid credentials');
     });
   });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   describe('POST /api/auth/register/master', () => {
     let adminToken: string;
