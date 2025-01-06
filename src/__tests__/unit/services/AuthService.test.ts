@@ -2,7 +2,7 @@ import { AuthService } from '../../../application/services/AuthService';
 import { UserRepository } from '../../../infrastructure/repositories/UserRepository';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { RegistrationDTO } from '../../../application/dtos/auth/RegisterDTO';
+import { MasterRegistrationDTO, RegistrationDTO } from '../../../application/dtos/auth/RegisterDTO';
 // Mock the UserRepository
 jest.mock('../../../infrastructure/repositories/UserRepository');
 // Mock bcrypt
@@ -79,34 +79,58 @@ describe('AuthService', () => {
     });
 
     it('should return token and user data for valid credentials', async () => {
-      const mockUser = {
-        id: '1',
+      // First create a user
+      const registrationData : MasterRegistrationDTO = {
         username: 'test',
-        name: 'Test User',
+        password: 'password123',
         email: 'test@test.com',
         role: 'master',
-        entityId: 'entity1',
-        isActive: true,
-        password: 'hashedPassword',
+        name: 'Test User',
+        entityId: 'no-entity-assigned'
       };
 
+      // Mock bcrypt hash for registration
+      (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword');
+
+      // Mock user creation
+      const mockUser = {
+        id: '1',
+        ...registrationData,
+        password: 'hashedPassword',
+        entityId: 'no-entity-assigned',
+        isActive: true,
+      };
+      mockUserRepository.create.mockResolvedValue(mockUser as any);
+
+      // Register the user
+      const user = await authService.registerMaster(registrationData);
+
+      console.log("User created:", user);
+      // Now test login
       mockUserRepository.findByUsername.mockResolvedValue(mockUser as any);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       (jwt.sign as jest.Mock).mockReturnValue('mockToken');
 
-      const result = await authService.login('test', 'hashedPassword');
+      const result = await authService.login('test', 'password123');
 
       expect(result).toEqual({
         token: 'mockToken',
         user: {
           id: '1',
-          name: 'Test User',
+          username: 'test',
           email: 'test@test.com',
           role: 'master'
         }
       });
+
+      // Verify that both create and findByUsername were called
+      expect(mockUserRepository.create).toHaveBeenCalled();
+      expect(mockUserRepository.findByUsername).toHaveBeenCalledWith('test');
     });
   });
+
+
+
 
   describe('registerMaster', () => {
     it('should create a master user successfully', async () => {
@@ -131,7 +155,7 @@ describe('AuthService', () => {
 
       mockUserRepository.create.mockResolvedValue(mockCreatedUser as any);
 
-      const result = await authService.registerMaster(userData as RegistrationDTO);
+      const result = await authService.registerMaster(userData as MasterRegistrationDTO);
 
       expect(result).toEqual({ user: mockCreatedUser });
       expect(mockUserRepository.create).toHaveBeenCalledWith({

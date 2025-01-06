@@ -1,20 +1,22 @@
-export interface RegistrationDTO {
-    username: string;
-    password: string;
-    email: string;
-    role: 'master' | 'partner' | 'admin-colowso';
-  }
-  
-export interface MasterRegistrationDTO extends RegistrationDTO {
-    role: 'master';
+export interface BaseRegistrationDTO {
+  username: string;
+  password: string;
+  email: string;
+  name: string;
 }
 
-export interface PartnerRegistrationDTO extends RegistrationDTO {
-    role: 'partner';
-    masterId: string;
+export interface MasterRegistrationDTO extends BaseRegistrationDTO {
+  role: 'master';
+  entityId?: string;
+  // Add any master-specific fields
 }
 
-export interface AdminColowsoRegistrationDTO extends RegistrationDTO {
-    role: 'admin-colowso';
+export interface PartnerRegistrationDTO extends BaseRegistrationDTO {
+  role: 'partner';
+  entityId?: string;
+  masterId: string; // Reference to the master this partner belongs to
+  // Add any partner-specific fields
 }
+
+export type RegistrationDTO = MasterRegistrationDTO | PartnerRegistrationDTO;
   

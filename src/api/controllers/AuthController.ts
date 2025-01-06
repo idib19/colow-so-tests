@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../../application/services/AuthService';
-import { MasterRegistrationDTO, PartnerRegistrationDTO, AdminColowsoRegistrationDTO, RegistrationDTO } from '../../application/dtos/auth/RegisterDTO';
+import { MasterRegistrationDTO, PartnerRegistrationDTO } from '../../application/dtos/auth/RegisterDTO';
 import { AuthRequest } from '../middleware/auth.middleware';
 
 export class AuthController {
@@ -34,34 +34,27 @@ export class AuthController {
   // Todo : make sure to receive the correct userData and that this action is operated by admin only ! 
   registerMaster = async (req: AuthRequest, res: Response) => {
     try {
-      // Get the admin user from the authenticated request
-      const adminId = req.user?.id;
-      const adminRole = req.user?.role;
-
-      // Verify admin privileges
-      if (!adminId || adminRole !== 'admin-colowso') {
-        return res.status(403).json({ 
-          message: 'Only administrators can register master accounts' 
-        });
-      }
-
       const registrationData: MasterRegistrationDTO = req.body;
       
-      // Validate registration data
       if (!this.validateMasterRegistration(registrationData)) {
         return res.status(400).json({ 
-          message: 'Invalid registration data' 
+          message: 'Invalid registration data',
+          details: 'Missing required fields' 
         });
       }
 
-      const result = await this.authService.registerMaster(
-        registrationData,
-      );
-
+      const result = await this.authService.registerMaster(registrationData);
       res.status(201).json(result);
     } catch (error) {
       console.error('Register master error:', error);
-      res.status(500).json({ message: 'Registration failed' });
+      if (error instanceof Error) {
+        res.status(500).json({ 
+          message: 'Registration failed',
+          details: error.message 
+        });
+      } else {
+        res.status(500).json({ message: 'Registration failed' });
+      }
     }
   };
 

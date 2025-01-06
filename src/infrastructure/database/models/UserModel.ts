@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document, Types } from 'mongoose';
 import { baseSchemaOptions } from '../../../domain/schemas/BaseSchema';
 
 export interface IUser extends Document {
@@ -26,9 +26,8 @@ const UserSchema = new Schema({
     enum: ['master', 'partner', 'admin-colowso'] 
   },
   entityId: { 
-    type: String, 
-    required: true, 
-    refPath: 'master | partner' 
+    type: String,
+    required: false,
   },
   isActive: { type: Boolean, default: true },
   lastLogin: { type: Date }

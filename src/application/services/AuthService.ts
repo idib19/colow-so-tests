@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
-import { RegistrationDTO } from '../dtos/auth/RegisterDTO';
-
+import { MasterRegistrationDTO, PartnerRegistrationDTO } from '../dtos/auth/RegisterDTO';
+import { Types } from 'mongoose';
+import { IUser, UserModel } from '../../infrastructure/database/models/UserModel';
 
 interface LoginResponse {
   token: string;
@@ -76,33 +77,61 @@ export class AuthService {
     return user;
   }
 
-  async registerMaster(userData: RegistrationDTO) {
-    // Create user account of type master
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
+  async registerMaster(userData: MasterRegistrationDTO) {
+    try {
+      // 1. Create the master entity first
 
-    // Create master account
-    const user = await this.userRepository.create({
-      ...userData,
-      password: hashedPassword,
-      role: 'master',
-      entityId: 'non-assigned-entity'
-    });
+      // 2. Create the user account
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      const user = await this.userRepository.create({
+        username: userData.username,
+        password: hashedPassword,
+        email: userData.email,
+        name: userData.name,
+        role: 'master',
+        entityId: userData.entityId,
+        isActive: true
+      });
 
-    return { user };
+      return { 
+        user, 
+      };
+    } catch (error) {
+      // If master creation fails, throw error with details
+      if (error instanceof Error) {
+        throw new Error(`Failed to create master: ${error.message}`);
+      }
+      throw error;
+    }
   }
 
-  async registerPartner(userData: RegistrationDTO) {
-    // Create user account of type partner
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const user = await this.userRepository.create({
-      ...userData,
-      password: hashedPassword,
-      role: 'partner',
-      entityId: 'non-assigned-entity',
-      isActive: true
-    });
+  async registerPartner(userData: PartnerRegistrationDTO) {
+    try {
+      // 1. Create the partner entity first
+ 
 
-    return { user };
+      // 2. Create the user account
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      const user = await this.userRepository.create({
+        username: userData.username,
+        password: hashedPassword,
+        email: userData.email,
+        name: userData.name,
+        entityId: userData.entityId,
+        role: 'partner',
+        isActive: true
+      });
+
+      return { 
+        user,
+      };
+    } catch (error) {
+      // If partner creation fails, throw error with details
+      if (error instanceof Error) {
+        throw new Error(`Failed to create partner: ${error.message}`);
+      }
+      throw error;
+    }
   }
 
   // change password service for user
