@@ -18,8 +18,10 @@ export class AuthController {
         return res.status(400).json({ message: 'Username and password are required' });
       }
 
-      const result = await this.authService.login(username, password);
-      
+
+      const result = await this.authService.login({username, password});
+
+
       if (!result) {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
@@ -36,6 +38,8 @@ export class AuthController {
     try {
       const registrationData: MasterRegistrationDTO = req.body;
       
+     
+
       if (!this.validateMasterRegistration(registrationData)) {
         return res.status(400).json({ 
           message: 'Invalid registration data',
@@ -43,7 +47,11 @@ export class AuthController {
         });
       }
 
+
       const result = await this.authService.registerMaster(registrationData);
+      console.log("result controller register master", result);
+
+      
       res.status(201).json(result);
     } catch (error) {
       console.error('Register master error:', error);

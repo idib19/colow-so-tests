@@ -3,6 +3,7 @@ export interface BaseRegistrationDTO {
   password: string;
   email: string;
   name: string;
+  entityId?: string;
 }
 
 export interface MasterRegistrationDTO extends BaseRegistrationDTO {

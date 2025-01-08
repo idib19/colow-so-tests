@@ -1,16 +1,20 @@
 import request from 'supertest';
 import { app } from '../setup';
-import { UserModel } from '../../infrastructure/database/models/UserModel';
+import { User } from '../../domain/entities/User';
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 
 describe('Auth Integration Tests', () => {
+  beforeEach(async () => {
+    // Clear the users collection before each test
+    await User.deleteMany({});
+  });
 
   describe('POST /api/auth/login', () => {
     beforeEach(async () => {
       // Create a test user
       const hashedPassword = await bcrypt.hash('password123', 10);
-      await UserModel.create({
+      const user = new User({
         username: 'testuser',
         password: hashedPassword,
         email: 'test@test.com',
@@ -19,6 +23,7 @@ describe('Auth Integration Tests', () => {
         entityId: 'not-assigned',
         isActive: true
       });
+      await user.save();  // Make sure to await the save operation
     });
 
     it('should login successfully with valid credentials', async () => {
@@ -48,36 +53,13 @@ describe('Auth Integration Tests', () => {
     });
   });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   describe('POST /api/auth/register/master', () => {
     let adminToken: string;
 
     beforeEach(async () => {
-      // Create an admin user and get token
+      // Create an admin user
       const hashedPassword = await bcrypt.hash('admin123', 10);
-      const admin = await UserModel.create({
+      const admin = new User({
         username: 'admin',
         password: hashedPassword,
         email: 'admin@test.com',
@@ -86,7 +68,9 @@ describe('Auth Integration Tests', () => {
         entityId: new mongoose.Types.ObjectId(),
         isActive: true
       });
+      await admin.save();  // Make sure to await the save
 
+      // Get admin token
       const loginResponse = await request(app)
         .post('/api/auth/login')
         .send({
@@ -105,7 +89,8 @@ describe('Auth Integration Tests', () => {
           username: 'newmaster',
           password: 'master123',
           email: 'master@test.com',
-          name: 'New Master'
+          name: 'New Master',
+          entityId: 'not-entity-assigned'
         });
 
       expect(response.status).toBe(201);
@@ -131,9 +116,9 @@ describe('Auth Integration Tests', () => {
     let userId: string;
 
     beforeEach(async () => {
-      // Create a test user and get token
+      // Create a test user
       const hashedPassword = await bcrypt.hash('password123', 10);
-      const user = await UserModel.create({
+      const user = new User({
         username: 'testuser',
         password: hashedPassword,
         email: 'test@test.com',
@@ -142,9 +127,10 @@ describe('Auth Integration Tests', () => {
         entityId: new mongoose.Types.ObjectId(),
         isActive: true
       });
-
+      await user.save();  // Make sure to await the save
       userId = user.id;
 
+      // Get user token
       const loginResponse = await request(app)
         .post('/api/auth/login')
         .send({
@@ -164,6 +150,9 @@ describe('Auth Integration Tests', () => {
           newPassword: 'newpassword123'
         });
 
+      console.log("token", userToken);
+
+      
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('message', 'Password updated successfully');
 

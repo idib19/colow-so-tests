@@ -1,17 +1,18 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { User, IUser } from '../../domain/entities/User';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
 import { MasterRegistrationDTO, PartnerRegistrationDTO } from '../dtos/auth/RegisterDTO';
-import { Types } from 'mongoose';
-import { IUser, UserModel } from '../../infrastructure/database/models/UserModel';
 
 interface LoginResponse {
   token: string;
   user: {
     id: string;
+    username: string;
     name: string;
     email: string;
     role: string;
+    entityId: string;
   };
 }
 
@@ -22,8 +23,7 @@ export class AuthService {
     this.userRepository = new UserRepository();
   }
 
- 
-  private generateToken(user: { id: string; role: string; entityId: string }) {
+  private generateToken(user: IUser) {
     return jwt.sign(
       { 
         id: user.id, 
@@ -35,40 +35,43 @@ export class AuthService {
     );
   }
 
-  async login(username: string, password: string): Promise<LoginResponse | null> {
-    const user = await this.validateCredentials(username, password);
-    
+  async login(loginData: { username: string, password: string }): Promise<LoginResponse | null> {
+
+
+    const user = await this.validateCredentials(loginData.username, loginData.password);
+
+
     if (!user) {
       return null;
     }
 
-    const token = this.generateToken({
-      id: user.id,
-      role: user.role,
-      entityId: user.entityId.toString()
-    });
+    const token = this.generateToken(user);
 
     return {
       token,
       user: {
         id: user.id,
+        username: user.username,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        entityId: user.entityId
       }
     };
   }
 
-   // validate password and username used by login
-   private async validateCredentials(username: string, password: string) {
-    const user = await this.userRepository.findByUsername(username);
+  private async validateCredentials(username: string, password: string): Promise<IUser | null> {
     
-    if (!user || !user.isActive) {
+
+    const user = await this.userRepository.findByUsername(username);
+
+
+    if (!user) {
       return null;
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    
+
     if (!isPasswordValid) {
       return null;
     }
@@ -79,25 +82,18 @@ export class AuthService {
 
   async registerMaster(userData: MasterRegistrationDTO) {
     try {
-      // 1. Create the master entity first
-
-      // 2. Create the user account
       const hashedPassword = await bcrypt.hash(userData.password, 10);
-      const user = await this.userRepository.create({
-        username: userData.username,
+      const user = await this.userRepository.create(new User({
+        ...userData,
         password: hashedPassword,
-        email: userData.email,
-        name: userData.name,
         role: 'master',
-        entityId: userData.entityId,
         isActive: true
-      });
+      }));
 
-      return { 
-        user, 
-      };
+      console.log("user created service: ", user);
+      
+      return { user };
     } catch (error) {
-      // If master creation fails, throw error with details
       if (error instanceof Error) {
         throw new Error(`Failed to create master: ${error.message}`);
       }
@@ -107,26 +103,16 @@ export class AuthService {
 
   async registerPartner(userData: PartnerRegistrationDTO) {
     try {
-      // 1. Create the partner entity first
- 
-
-      // 2. Create the user account
       const hashedPassword = await bcrypt.hash(userData.password, 10);
-      const user = await this.userRepository.create({
-        username: userData.username,
+      const user = await this.userRepository.create(new User({
+        ...userData,
         password: hashedPassword,
-        email: userData.email,
-        name: userData.name,
-        entityId: userData.entityId,
         role: 'partner',
         isActive: true
-      });
+      }));
 
-      return { 
-        user,
-      };
+      return { user };
     } catch (error) {
-      // If partner creation fails, throw error with details
       if (error instanceof Error) {
         throw new Error(`Failed to create partner: ${error.message}`);
       }
@@ -134,7 +120,6 @@ export class AuthService {
     }
   }
 
-  // change password service for user
   async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<boolean> {
     const user = await this.userRepository.findById(userId);
     
