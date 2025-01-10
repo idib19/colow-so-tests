@@ -1,8 +1,12 @@
 import { Router } from 'express';
 import { ColowSoController } from '../controllers/ColowSoController';
+import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = Router();
 const controller = new ColowSoController();
+
+// Protect all ColowSo routes with admin-colowso role
+router.use(authMiddleware(['admin-colowso']));
 
 router.post('/load-master', controller.loadMasterAccount);
 router.get('/transactions', controller.getAllTransactions);

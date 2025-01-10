@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { app } from '../setup';
 import { createTestMaster, createTestPartner } from '../helpers/testHelpers';
-
+import { generateTestToken } from '../helpers/auth.helper';
 
 describe('Partner API Endpoints', () => {
   let master: any;
@@ -13,7 +13,7 @@ describe('Partner API Endpoints', () => {
   describe('POST /api/partner/transaction', () => {
     it('should create a new transaction', async () => {
       const partner = await createTestPartner(master._id.toString(), 'TestCountry', 500);
-      
+      const partnerToken = generateTestToken('partner', partner._id.toString());
       const transactionData = {
         issuerId: partner._id,
         issuerModel: 'Partner',
@@ -40,6 +40,7 @@ describe('Partner API Endpoints', () => {
 
       const response = await request(app)
         .post('/api/partner/transaction')
+        .set('Authorization', `Bearer ${partnerToken}`)
         .send(transactionData)
         .expect(201);
 
@@ -52,8 +53,10 @@ describe('Partner API Endpoints', () => {
     it('should return partner balance', async () => {
       const partner = await createTestPartner(master._id.toString() , 'TestCountry', 5000);
 
+      const partnerToken = generateTestToken('partner', partner._id.toString());
       const response = await request(app)
         .get(`/api/partner/balance/${partner._id}`)
+        .set('Authorization', `Bearer ${partnerToken}`)
         .expect(200);
 
       expect(response.body.balance).toBe(5000);
