@@ -9,8 +9,8 @@ const authController = new AuthController();
 router.post('/login', authController.login);
 
 // Protected routes
-router.post('/register/master', authMiddleware(['admin-colowso']), authController.registerMaster);
-router.post('/register/partner', authMiddleware(['master', 'admin-colowso']), authController.registerPartner);
+router.post('/register/master', authMiddleware(['admin-colowso']), authController.registerUserMaster);
+router.post('/register/partner', authMiddleware(['master', 'admin-colowso']), authController.registerUserPartner);
 router.post('/change-password', authMiddleware(['master', 'partner', 'admin-colowso']), authController.changePassword);
 
 export default router; 

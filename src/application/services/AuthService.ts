@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User, IUser } from '../../domain/entities/User';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
-import { MasterRegistrationDTO, PartnerRegistrationDTO } from '../dtos/auth/RegisterDTO';
+import { MasterUserRegistrationDTO, PartnerUserRegistrationDTO } from '../dtos/auth/RegisterDTO';
 
 interface LoginResponse {
   token: string;
@@ -80,7 +80,7 @@ export class AuthService {
     return user;
   }
 
-  async registerMaster(userData: MasterRegistrationDTO) {
+  async registerMaster(userData: MasterUserRegistrationDTO) {
     try {
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       const user = await this.userRepository.create(new User({
@@ -91,7 +91,7 @@ export class AuthService {
       }));
 
       console.log("user created service: ", user);
-      
+
       return { user };
     } catch (error) {
       if (error instanceof Error) {
@@ -101,7 +101,7 @@ export class AuthService {
     }
   }
 
-  async registerPartner(userData: PartnerRegistrationDTO) {
+  async registerPartner(userData: PartnerUserRegistrationDTO) {
     try {
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       const user = await this.userRepository.create(new User({

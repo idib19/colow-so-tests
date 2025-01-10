@@ -6,18 +6,18 @@ export interface BaseRegistrationDTO {
   entityId?: string;
 }
 
-export interface MasterRegistrationDTO extends BaseRegistrationDTO {
+export interface MasterUserRegistrationDTO extends BaseRegistrationDTO {
   role: 'master';
   entityId?: string;
   // Add any master-specific fields
 }
 
-export interface PartnerRegistrationDTO extends BaseRegistrationDTO {
+export interface PartnerUserRegistrationDTO extends BaseRegistrationDTO {
   role: 'partner';
   entityId?: string;
   masterId: string; // Reference to the master this partner belongs to
   // Add any partner-specific fields
 }
 
-export type RegistrationDTO = MasterRegistrationDTO | PartnerRegistrationDTO;
+export type RegistrationDTO = MasterUserRegistrationDTO | PartnerUserRegistrationDTO;
   

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ColowSoService } from '../../application/services/ColowSoService';
+import { CreateMasterDTO } from '../../application/dtos';
 
 export class ColowSoController {
   private service: ColowSoService;
@@ -7,6 +8,19 @@ export class ColowSoController {
   constructor() {
     this.service = new ColowSoService();
   }
+
+  // this function is to create a master account 
+  // note that this is different from the master registration wich is creating a user of type master 
+  // master account and user's are different entities linked by the entityId 
+  createMaster = async (req: Request, res: Response) => {
+    try {
+      const masterData: CreateMasterDTO = req.body;
+      await this.service.createMaster(masterData);
+      res.status(201).json({ message: 'Master created successfully' });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to create master' });
+    }
+  };
 
   loadMasterAccount = async (req: Request, res: Response) => {
     try {

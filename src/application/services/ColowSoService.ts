@@ -5,8 +5,17 @@ import { Transaction } from '../../domain/entities/Transaction';
 import { Transfer } from '../../domain/entities/Transfer';
 import { Claim } from '../../domain/entities/Claim';
 import { CardLoad } from '../../domain/entities/CardLoad';
+import { CreateMasterDTO } from '../dtos';
 
 export class ColowSoService implements IColowSoService {
+
+  // this function is to create a master account  not a user of type master  !!! 
+  async createMaster(masterData: CreateMasterDTO) {
+    const master = new Master(masterData);
+    await master.save();
+    return master;
+  }
+
   async loadMasterAccount(masterId: string, amount: number) {
     await Master.findByIdAndUpdate(
       masterId,
