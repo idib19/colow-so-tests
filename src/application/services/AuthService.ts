@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User, IUser } from '../../domain/entities/User';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
-import { MasterUserRegistrationDTO, PartnerUserRegistrationDTO } from '../dtos/auth/RegisterDTO';
+import { RegistrationDTO } from '../dtos/auth/RegisterDTO';
 
 interface LoginResponse {
   token: string;
@@ -31,7 +31,7 @@ export class AuthService {
         entityId: user.entityId 
       },
       process.env.JWT_SECRET!,
-      { expiresIn: '15m' }
+      { expiresIn: '1h' }
     );
   }
 
@@ -80,7 +80,7 @@ export class AuthService {
     return user;
   }
 
-  async registerMaster(userData: MasterUserRegistrationDTO) {
+  async registerMaster(userData: RegistrationDTO) {
     try {
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       const user = await this.userRepository.create(new User({
@@ -101,7 +101,7 @@ export class AuthService {
     }
   }
 
-  async registerPartner(userData: PartnerUserRegistrationDTO) {
+  async registerPartner(userData: RegistrationDTO) {
     try {
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       const user = await this.userRepository.create(new User({

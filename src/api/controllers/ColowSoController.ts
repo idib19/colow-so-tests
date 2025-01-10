@@ -12,7 +12,7 @@ export class ColowSoController {
   // this function is to create a master account 
   // note that this is different from the master registration wich is creating a user of type master 
   // master account and user's are different entities linked by the entityId 
-  createMaster = async (req: Request, res: Response) => {
+  createMasterAccount = async (req: Request, res: Response) => {
     try {
       const masterData: CreateMasterDTO = req.body;
       await this.service.createMaster(masterData);

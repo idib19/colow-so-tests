@@ -6,6 +6,8 @@ import { Transfer } from '../../domain/entities/Transfer';
 import { getTransactionsByIssuerId, calculateTotalTransactionAmount } from '../../domain/functions/transactionFunctions';
 import { getTransfersByIssuerId, calculateTotalTransferAmount } from '../../domain/functions/transferFunctions';
 import { getCardLoadsByIssuerId, calculateTotalCardLoadAmount } from '../../domain/functions/cardLoadFunctions';
+import { Partner } from '../../domain/entities/Partner';
+import { CreatePartnerDTO } from '../dtos/partner/PartnerDTO';
 
 export class MasterService implements IMasterService {
   
@@ -136,6 +138,18 @@ export class MasterService implements IMasterService {
       cardLoadCount: cardLoads.length,
       totalCardLoadAmount
     };
+  }
+
+  async createPartner(partnerData: CreatePartnerDTO) {
+    const partner = new Partner({
+      ...partnerData,
+      masterId: partnerData.masterId,
+      userId: partnerData.userId,
+      country: partnerData.country,
+      balance: 0,
+      totalCommission: 0
+    });
+    return partner.save();
   }
 
   async getPartners(masterId: string) {

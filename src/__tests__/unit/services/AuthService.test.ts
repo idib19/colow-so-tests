@@ -115,7 +115,7 @@ describe('AuthService', () => {
   describe('registerMaster', () => {
     it('should create a master user successfully', async () => {
       const userData = {
-        username: 'testmaster',
+        name: 'testmaster',
         password: 'password123',
         email: 'master@test.com',
         role: 'master'

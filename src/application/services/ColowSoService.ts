@@ -11,9 +11,12 @@ export class ColowSoService implements IColowSoService {
 
   // this function is to create a master account  not a user of type master  !!! 
   async createMaster(masterData: CreateMasterDTO) {
-    const master = new Master(masterData);
-    await master.save();
-    return master;
+    const master = new Master({
+      ...masterData,
+      balance: 0,
+      totalCommission: 0
+    });
+    return master.save();
   }
 
   async loadMasterAccount(masterId: string, amount: number) {

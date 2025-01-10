@@ -139,7 +139,7 @@ export class AuthController {
   // This funtion validates the registration data for a master user 
   private validateMasterRegistration(data: MasterUserRegistrationDTO): boolean {
     return !!(
-      data.username &&
+      data.name &&
       data.password &&
       data.email
     );
@@ -148,7 +148,7 @@ export class AuthController {
   // This funtion validates the registration data for a partner user 
   private validatePartnerRegistration(data: PartnerUserRegistrationDTO): boolean {
     return !!(
-      data.username &&
+      data.name &&
       data.password &&
       data.email &&
       data.masterId
