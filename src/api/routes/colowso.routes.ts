@@ -20,4 +20,5 @@ router.get('/masters', controller.getMastersData);
 router.get('/partners', controller.getPartnersData);
 router.get('/card-loads', controller.getAllCardLoads);
 
+
 export default router;

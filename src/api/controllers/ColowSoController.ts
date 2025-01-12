@@ -119,7 +119,7 @@ export class ColowSoController {
   getMastersData = async (_req: Request, res: Response) => {
     try {
       const masters = await this.service.getMastersData();
-      res.json(masters );
+      res.json(masters);
     } catch (error) {
       res.status(500).json({ error: 'Failed to get masters data' });
     }

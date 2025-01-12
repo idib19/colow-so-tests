@@ -34,6 +34,11 @@ export class AuthController {
     }
   };
 
+  getAllUsers = async (req: AuthRequest, res: Response) => {
+    const users = await this.authService.getAllUsers();
+    res.json(users);
+  };
+
   // This funtion creates a user of type master 
   registerUserMaster = async (req: AuthRequest, res: Response) => {
 
@@ -54,7 +59,8 @@ export class AuthController {
 
 
       const result = await this.authService.registerMaster(registrationData);
-      console.log("result controller register master", result);
+
+      console.log("A new master has been created", result);
 
 
       res.status(201).json(result);
@@ -141,7 +147,9 @@ export class AuthController {
     return !!(
       data.name &&
       data.password &&
-      data.email
+      data.email &&
+      data.entityId &&
+      data.role
     );
   }
 

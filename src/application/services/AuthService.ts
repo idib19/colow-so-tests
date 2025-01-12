@@ -85,6 +85,7 @@ export class AuthService {
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       const user = await this.userRepository.create(new User({
         ...userData,
+        username: userData.name,
         password: hashedPassword,
         role: 'master',
         isActive: true
@@ -137,5 +138,9 @@ export class AuthService {
     await this.userRepository.update(userId, { password: hashedPassword });
     
     return true;
+  }
+
+  async getAllUsers(): Promise<IUser[]> {
+    return this.userRepository.findAll();
   }
 } 

@@ -13,6 +13,10 @@ export class UserRepository implements IRepository<IUser> {
     return this.model.findById(id).exec();
   }
 
+  async findAll(): Promise<IUser[]> {
+    return this.model.find().exec();
+  }
+
   async findByUsername(username: string): Promise<IUser | null> {
    
     const user = await this.model.findOne({ username })
