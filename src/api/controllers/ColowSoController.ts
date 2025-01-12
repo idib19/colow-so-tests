@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ColowSoService } from '../../application/services/ColowSoService';
 import { CreateMasterDTO } from '../../application/dtos';
+import { AuthRequest } from '../middleware/auth.middleware';
 
 export class ColowSoController {
   private service: ColowSoService;
@@ -12,13 +13,44 @@ export class ColowSoController {
   // this function is to create a master account 
   // note that this is different from the master registration wich is creating a user of type master 
   // master account and user's are different entities linked by the entityId 
-  createMasterAccount = async (req: Request, res: Response) => {
+  createMasterAccount = async (req: AuthRequest, res: Response) => {
     try {
+    
       const masterData: CreateMasterDTO = req.body;
-      await this.service.createMaster(masterData);
-      res.status(201).json({ message: 'Master created successfully' });
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      // Validate the data
+      if (!masterData || typeof masterData.country !== 'string') {
+        return res.status(400).json({ 
+          error: 'Invalid master data',
+          details: 'Country is required and must be a string'
+        });
+      }
+
+      // Create the master
+      const result = await this.service.createMaster(masterData, userId);
+      console.log('Master created successfully:', result);
+
+      res.status(201).json({ 
+        message: 'Master created successfully',
+        data: result 
+      });
     } catch (error) {
-      res.status(500).json({ error: 'Failed to create master' });
+      // Detailed error logging
+      console.error('Failed to create master:', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        requestBody: req.body
+      });
+
+      res.status(500).json({ 
+        error: 'Failed to create master',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   };
 
@@ -64,7 +96,7 @@ export class ColowSoController {
   getMastersData = async (_req: Request, res: Response) => {
     try {
       const masters = await this.service.getMastersData();
-      res.json(masters);
+      res.json(masters );
     } catch (error) {
       res.status(500).json({ error: 'Failed to get masters data' });
     }

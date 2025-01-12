@@ -10,13 +10,18 @@ import { CreateMasterDTO } from '../dtos';
 export class ColowSoService implements IColowSoService {
 
   // this function is to create a master account  not a user of type master  !!! 
-  async createMaster(masterData: CreateMasterDTO) {
+  async createMaster(masterData: CreateMasterDTO, userId: string) {
     const master = new Master({
       ...masterData,
       balance: 0,
-      totalCommission: 0
+      totalCommission: 0,
+      partnersList: [],
+      assignedUserId: userId
     });
-    return master.save();
+    await master.save();
+
+    return master;
+
   }
 
   async loadMasterAccount(masterId: string, amount: number) {
@@ -40,7 +45,12 @@ export class ColowSoService implements IColowSoService {
   }
 
   async getMastersData() {
-    return Master.find().populate('partnersList').exec();
+    return Master.find()
+      .populate('partnersList')
+      .populate('assignedUserId')
+      .select('-__v')
+      .lean()
+      .exec();
   }
 
   async getPartnersData() {
