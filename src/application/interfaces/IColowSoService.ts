@@ -1,5 +1,5 @@
 export interface IColowSoService {
-  loadMasterAccount(masterId: string, amount: number): Promise<void>;
+  loadMasterAccount(receiverId: string, amount: number, issuerId: string, type: 1 | 2): Promise<void>;
   getAllTransactions(): Promise<any[]>;
   getAllTransfers(): Promise<any[]>;
   getAllClaims(): Promise<any[]>;

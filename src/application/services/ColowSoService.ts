@@ -24,9 +24,13 @@ export class ColowSoService implements IColowSoService {
 
   }
 
-  async loadMasterAccount(masterId: string, amount: number) {
+  async loadMasterAccount(receiverId: string, amount: number, issuerId: string, type: 1 | 2) {
+    if (type !== 1) {
+      throw new Error('Invalid transfer type');
+    }
+
     await Master.findByIdAndUpdate(
-      masterId,
+      receiverId,
       { $inc: { balance: amount } },
       { new: true }
     );
