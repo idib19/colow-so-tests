@@ -14,4 +14,6 @@ router.post('/register/master', authMiddleware(['admin-colowso']), authControlle
 router.post('/register/partner', authMiddleware(['master', 'admin-colowso']), authController.registerUserPartner);
 router.post('/change-password', authMiddleware(['master', 'partner', 'admin-colowso']), authController.changePassword);
 
+
+
 export default router; 

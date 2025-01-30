@@ -140,6 +140,48 @@ export class MasterService implements IMasterService {
     };
   }
 
+  async getMetricsV2(masterId: string) {
+    const [
+      balance,
+      cardLoads,
+      totalCardLoadAmount,
+      commission
+    ] = await Promise.all([
+      this.getBalance(masterId),
+      getCardLoadsByIssuerId(masterId),
+      calculateTotalCardLoadAmount(masterId),
+      this.getCommission(masterId)
+    ]);
+
+    return {
+      balance,
+      cardLoadCount: cardLoads.length,
+      totalCardLoadAmount
+    };
+  }
+
+  async getCommission(masterId: string) {
+    const fourMonthsAgo = new Date();
+    fourMonthsAgo.setMonth(fourMonthsAgo.getMonth() - 4);
+
+    const commission = await Transaction.aggregate([
+      {
+        $match: {
+          issuerId: masterId,
+          createdAt: { $gte: fourMonthsAgo }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalCommission: { $sum: '$commission' }
+        }
+      }
+    ]);
+
+    return commission[0]?.totalCommission || 0;
+  }
+
   async createPartner(partnerData: CreatePartnerDTO) {
     const partner = new Partner({
       ...partnerData,

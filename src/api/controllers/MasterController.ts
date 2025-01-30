@@ -107,7 +107,7 @@ export class MasterController {
 
   getMetrics = async (req: Request, res: Response) => {
     try {
-      const metrics = await this.service.getMetrics(req.params.masterId);
+      const metrics = await this.service.getMetricsV2(req.params.masterId);
       res.json(metrics);
     } catch (error) {
       res.status(500).json({ error: 'Failed to get metrics' });
