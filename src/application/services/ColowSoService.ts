@@ -26,14 +26,32 @@ export class ColowSoService implements IColowSoService {
 
   async loadMasterAccount(receiverId: string, amount: number, issuerId: string, type: 1 | 2) {
     if (type !== 1) {
-      throw new Error('Invalid transfer type');
+      throw new Error('Invalid transfer type at ColowSoService.loadMasterAccount');
     }
 
-    await Master.findByIdAndUpdate(
-      receiverId,
-      { $inc: { balance: amount } },
-      { new: true }
-    );
+    try {
+      // First attempt to save the transfer
+      const transfer = new Transfer({
+        issuerId: issuerId,
+        receiverId,
+        amount,
+        type: 1
+      });
+      
+      const savedTransfer = await transfer.save();
+      
+      // Only if transfer saves successfully, update the master balance
+      if (savedTransfer) {
+        await Master.findByIdAndUpdate(
+          receiverId,
+          { $inc: { balance: amount } },
+          { new: true }
+        );
+      }
+    } catch (error) {
+      console.error('Database connection error:', error);
+      throw error;
+    }
   }
 
   async getAllTransactions() {
