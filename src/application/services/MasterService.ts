@@ -8,6 +8,7 @@ import { getTransfersByIssuerId, calculateTotalTransferAmount } from '../../doma
 import { getCardLoadsByIssuerId, calculateTotalCardLoadAmount } from '../../domain/functions/cardLoadFunctions';
 import { Partner } from '../../domain/entities/Partner';
 import { CreatePartnerDTO } from '../dtos/partner/PartnerDTO';
+import { Claim } from '../../domain/entities/Claim';
 
 export class MasterService implements IMasterService {
   
@@ -43,6 +44,8 @@ export class MasterService implements IMasterService {
         { $inc: { balance: -transactionData.amount } },
         { session }
       );
+
+      await this.updateCommission(master.id, transactionData.amount);
 
       await session.commitTransaction();
       return transaction;
@@ -141,45 +144,101 @@ export class MasterService implements IMasterService {
   }
 
   async getMetricsV2(masterId: string) {
+
+   
+
     const [
       balance,
       cardLoads,
       totalCardLoadAmount,
-      commission
+      commission,
+      claims,
+      lastColowsoTransfert
     ] = await Promise.all([
       this.getBalance(masterId),
       getCardLoadsByIssuerId(masterId),
       calculateTotalCardLoadAmount(masterId),
-      this.getCommission(masterId)
+      this.getCommission(masterId),
+      this.getClaims(masterId),
+      this.getLastColowsoTransfert(masterId)
     ]);
 
     return {
       balance,
       cardLoadCount: cardLoads.length,
-      totalCardLoadAmount
+      totalCardLoadAmount,
+      commission,
+      claims,
+      lastColowsoTransfert
     };
   }
 
+  // Get the commission for the last 4 months
   async getCommission(masterId: string) {
+    // For development/testing, return mock data
+    const mockCommissionData = [
+      { month: 'Jan', value: 400 },
+      { month: 'Feb', value: 300 },
+      { month: 'Mar', value: 500 },
+      { month: 'Apr', value: 450 },
+    ];
+
+    // Keep the real implementation commented out for later use
+    /* 
     const fourMonthsAgo = new Date();
     fourMonthsAgo.setMonth(fourMonthsAgo.getMonth() - 4);
+    
+    const master = await Master.findById(masterId);
+    if (!master) {
+      throw new Error('Master not found');
+    }
 
-    const commission = await Transaction.aggregate([
-      {
-        $match: {
-          issuerId: masterId,
-          createdAt: { $gte: fourMonthsAgo }
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          totalCommission: { $sum: '$commission' }
-        }
-      }
-    ]);
+    const recentCommissions = master.commissionHistory
+      .filter(entry => entry.month >= fourMonthsAgo)
+      .reduce((acc, entry) => acc + entry.amount, 0);
 
-    return commission[0]?.totalCommission || 0;
+    return recentCommissions || [];
+    */
+
+    return mockCommissionData;
+  }
+
+  // get all claims for this master
+  async getClaims(masterId: string) {
+    // For development/testing, return mock data
+    const mockClaimsData = [
+      { status: 'resolved', value: 30 },
+      { status: 'pending', value: 15 },
+      { status: 'rejected', value: 5 },
+    ];
+
+    // Keep the real implementation commented out for later use
+    /*
+    if (!masterId) {
+      throw new Error('Unsufficient data');
+    }
+    const claims = await Claim.find({transactionIssuerId: masterId});
+    if (!claims) {
+      throw new Error('No claims found');
+    }
+    return claims || [];
+    */
+
+    return mockClaimsData;
+  }
+
+  async getLastColowsoTransfert(masterId: string) {
+    const lastTransfer = await Transfer.findOne({ 
+      receiverId: masterId,
+      type: 1
+    })
+    .select('amount createdAt')  // Only select these fields
+    .sort({ createdAt: -1 });
+     
+    return lastTransfer ? {
+      amount: lastTransfer.amount,
+      createdAt: lastTransfer.createdAt
+    } : 0;
   }
 
   async createPartner(partnerData: CreatePartnerDTO) {
@@ -198,4 +257,27 @@ export class MasterService implements IMasterService {
     const master = await Master.findById(masterId).populate('partnersList');
     return master?.partnersList || [];
   }
+
+  // This function is for dynamicaly update the comission history of a master after a transaction worthy of comission is made
+  async updateCommission(masterId: string, amount: number) {
+    const currentMonth = new Date();
+    currentMonth.setDate(1); // First day of current month
+    currentMonth.setHours(0, 0, 0, 0);
+
+    await Master.findByIdAndUpdate(
+      masterId,
+      {
+        $inc: { totalCommission: amount },
+        $push: {
+          commissionHistory: {
+            month: currentMonth,
+            amount: amount
+          }
+        }
+      }
+    );
+  }
+
+ 
+
 }
