@@ -10,6 +10,7 @@ import { CreateMasterDTO } from '../dtos';
 export class ColowSoService implements IColowSoService {
 
   // this function is to create a master account  not a user of type master  !!! 
+<<<<<<< HEAD
   async createMaster(masterData: CreateMasterDTO, userId: string) {
     const master = new Master({
       ...masterData,
@@ -52,6 +53,20 @@ export class ColowSoService implements IColowSoService {
       console.error('Database connection error:', error);
       throw error;
     }
+=======
+  async createMaster(masterData: CreateMasterDTO) {
+    const master = new Master(masterData);
+    await master.save();
+    return master;
+  }
+
+  async loadMasterAccount(masterId: string, amount: number) {
+    await Master.findByIdAndUpdate(
+      masterId,
+      { $inc: { balance: amount } },
+      { new: true }
+    );
+>>>>>>> 7e7bdce (Deleted .env file)
   }
 
   async getAllTransactions() {

@@ -34,11 +34,14 @@ export class AuthController {
     }
   };
 
+<<<<<<< HEAD
   getAllUsers = async (req: AuthRequest, res: Response) => {
     const users = await this.authService.getAllUsers();
     res.json(users);
   };
 
+=======
+>>>>>>> 7e7bdce (Deleted .env file)
   // This funtion creates a user of type master 
   registerUserMaster = async (req: AuthRequest, res: Response) => {
 
@@ -60,8 +63,11 @@ export class AuthController {
 
       const result = await this.authService.registerMaster(registrationData);
 
+<<<<<<< HEAD
       console.log("A new master has been created", result);
 
+=======
+>>>>>>> 7e7bdce (Deleted .env file)
 
       res.status(201).json(result);
     } catch (error) {
