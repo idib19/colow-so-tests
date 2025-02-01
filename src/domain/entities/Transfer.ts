@@ -6,6 +6,7 @@ export interface ITransfer extends Document {
   type: 1 | 2;
   amount: number;
   issuerId: Schema.Types.ObjectId;
+  receiverId: Schema.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -13,7 +14,8 @@ export interface ITransfer extends Document {
 const TransferSchema = new Schema({
   type: { type: Number, required: true, enum: [1, 2] },
   amount: { type: Number, required: true },
-  issuerId: { type: Schema.Types.ObjectId, required: true, ref: 'Master' }
+  issuerId: { type: Schema.Types.ObjectId, required: true, ref: 'Master' },
+  receiverId: { type: Schema.Types.ObjectId, required: true, ref: 'Master' }
 }, baseSchemaOptions);
 
 export const Transfer = model<ITransfer>('Transfer', TransferSchema);

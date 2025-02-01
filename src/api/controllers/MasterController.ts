@@ -69,6 +69,15 @@ export class MasterController {
     }
   };
 
+  getCardLoads = async (req: Request, res: Response) => {
+    try {
+      const cardLoads = await this.service.getCardLoads(req.params.masterId);
+      res.status(200).json(cardLoads);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to get card loads' });
+    }
+  };
+
   createTransfer = async (req: Request, res: Response) => {
     try {
       const transferData: CreateTransferDTO = req.body;
@@ -107,7 +116,7 @@ export class MasterController {
 
   getMetrics = async (req: Request, res: Response) => {
     try {
-      const metrics = await this.service.getMetrics(req.params.masterId);
+      const metrics = await this.service.getMetricsV2(req.params.masterId);
       res.json(metrics);
     } catch (error) {
       res.status(500).json({ error: 'Failed to get metrics' });

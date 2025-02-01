@@ -22,7 +22,7 @@ export const authMiddleware = (allowedRoles: UserRole[]) => {
       console.log('Allowed Roles:', allowedRoles);
     }
 
-    if (!authHeader?.startsWith('Bearer ')) {
+    if (!authHeader?.startsWith('Bearer')) {
       return res.status(401).json({ 
         message: 'No token provided',
         details: 'Authorization header must start with Bearer'

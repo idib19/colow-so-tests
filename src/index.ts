@@ -8,7 +8,7 @@ import partnerRoutes from './api/routes/partner.routes';
 import colowsoRoutes from './api/routes/colowso.routes';
 import { authMiddleware } from './api/middleware/auth.middleware';
 import authRoutes from './api/routes/auth.routes';
-
+import { connectDB } from './infrastructure/database/connection';
 // Load environment variables
 dotenv.config();
 
@@ -43,6 +43,7 @@ if (require.main === module) {
   const app = createApp();
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running at http://localhost:${PORT}`);
+    connectDB();
   });
 }

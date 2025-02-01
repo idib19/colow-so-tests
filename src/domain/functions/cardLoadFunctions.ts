@@ -6,10 +6,12 @@ export const getCardLoadsByIssuerId = async (issuerId: string) => {
     .exec();
 };
 
+
 export const calculateTotalCardLoadAmount = async (issuerId: string) => {
-  const result = await CardLoad.aggregate([
-    { $match: { issuerId: issuerId } },
-    { $group: { _id: null, total: { $sum: "$amount" } } }
-  ]);
-  return result[0]?.total || 0;
+  const cardLoads = await CardLoad.find({ issuerId });
+  
+  // Sum up the amounts using JavaScript reduce
+  const total = cardLoads.reduce((sum, cardLoad) => sum + cardLoad.amount, 0);
+  
+  return total;
 };

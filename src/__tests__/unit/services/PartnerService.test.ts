@@ -1,6 +1,5 @@
 import { PartnerService } from '../../../application/services/PartnerService';
 import { Partner } from '../../../domain/entities/Partner';
-import { Master } from '../../../domain/entities/Master';
 import { createTestPartner, createTestMaster } from '../../helpers/testHelpers';
 
 describe('PartnerService', () => {

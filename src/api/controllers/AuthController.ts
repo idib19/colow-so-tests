@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../../application/services/AuthService';
-import { MasterRegistrationDTO, PartnerRegistrationDTO } from '../../application/dtos/auth/RegisterDTO';
+import { MasterUserRegistrationDTO, PartnerUserRegistrationDTO } from '../../application/dtos/auth/RegisterDTO';
 import { AuthRequest } from '../middleware/auth.middleware';
 
 export class AuthController {
@@ -10,16 +10,17 @@ export class AuthController {
     this.authService = new AuthService();
   }
 
+  // TODO : ADD VALIDATION FOR LOGIN  LATER 
   login = async (req: Request, res: Response) => {
     try {
       const { username, password } = req.body;
-      
+
       if (!username || !password) {
         return res.status(400).json({ message: 'Username and password are required' });
       }
 
 
-      const result = await this.authService.login({username, password});
+      const result = await this.authService.login({ username, password });
 
 
       if (!result) {
@@ -33,32 +34,48 @@ export class AuthController {
     }
   };
 
-  // Todo : make sure to receive the correct userData and that this action is operated by admin only ! 
-  registerMaster = async (req: AuthRequest, res: Response) => {
+<<<<<<< HEAD
+  getAllUsers = async (req: AuthRequest, res: Response) => {
+    const users = await this.authService.getAllUsers();
+    res.json(users);
+  };
+
+=======
+>>>>>>> 7e7bdce (Deleted .env file)
+  // This funtion creates a user of type master 
+  registerUserMaster = async (req: AuthRequest, res: Response) => {
+
+    // role validation this is a admin only action  
+    if (req.user?.role !== 'admin-colowso') {
+      return res.status(403).json({ message: 'Only masters can register masters' });
+    }
+
     try {
-      const registrationData: MasterRegistrationDTO = req.body;
-      
-     
+      const registrationData: MasterUserRegistrationDTO = req.body;
 
       if (!this.validateMasterRegistration(registrationData)) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: 'Invalid registration data',
-          details: 'Missing required fields' 
+          details: 'Missing required fields'
         });
       }
 
 
       const result = await this.authService.registerMaster(registrationData);
-      console.log("result controller register master", result);
 
-      
+<<<<<<< HEAD
+      console.log("A new master has been created", result);
+
+=======
+>>>>>>> 7e7bdce (Deleted .env file)
+
       res.status(201).json(result);
     } catch (error) {
-      console.error('Register master error:', error);
+      console.error('Create master error:', error);
       if (error instanceof Error) {
-        res.status(500).json({ 
-          message: 'Registration failed',
-          details: error.message 
+        res.status(500).json({
+          message: 'Create master failed',
+          details: error.message
         });
       } else {
         res.status(500).json({ message: 'Registration failed' });
@@ -66,7 +83,8 @@ export class AuthController {
     }
   };
 
-  registerPartner = async (req: AuthRequest, res: Response) => {
+  // This funtion creates a user of type partner 
+  registerUserPartner = async (req: AuthRequest, res: Response) => {
     try {
       // Get the master user from the authenticated request
       const masterId = req.user?.id;
@@ -74,24 +92,24 @@ export class AuthController {
 
       // Verify master privileges
       if (!masterId || masterRole !== 'master') {
-        return res.status(403).json({ 
-          message: 'Only master accounts can register partners' 
+        return res.status(403).json({
+          message: 'Only master accounts can register partners'
         });
       }
 
-      const registrationData: PartnerRegistrationDTO = req.body;
-      
+      const registrationData: PartnerUserRegistrationDTO = req.body;
+
       // Validate registration data
       if (!this.validatePartnerRegistration(registrationData)) {
-        return res.status(400).json({ 
-          message: 'Invalid registration data' 
+        return res.status(400).json({
+          message: 'Invalid registration data'
         });
       }
 
       // Ensure the master can only create partners for themselves
       if (registrationData.masterId !== masterId) {
-        return res.status(403).json({ 
-          message: 'Cannot create partners for other masters' 
+        return res.status(403).json({
+          message: 'Cannot create partners for other masters'
         });
       }
 
@@ -106,6 +124,7 @@ export class AuthController {
     }
   };
 
+  // This funtion changes the password of a user 
   changePassword = async (req: AuthRequest, res: Response) => {
     try {
       const { oldPassword, newPassword } = req.body;
@@ -116,7 +135,7 @@ export class AuthController {
       }
 
       const success = await this.authService.changePassword(userId, oldPassword, newPassword);
-      
+
       if (!success) {
         return res.status(400).json({ message: 'Invalid old password' });
       }
@@ -128,17 +147,22 @@ export class AuthController {
     }
   };
 
-  private validateMasterRegistration(data: MasterRegistrationDTO): boolean {
+
+  // This funtion validates the registration data for a master user 
+  private validateMasterRegistration(data: MasterUserRegistrationDTO): boolean {
     return !!(
-      data.username &&
+      data.name &&
       data.password &&
-      data.email
+      data.email &&
+      data.entityId &&
+      data.role
     );
   }
 
-  private validatePartnerRegistration(data: PartnerRegistrationDTO): boolean {
+  // This funtion validates the registration data for a partner user 
+  private validatePartnerRegistration(data: PartnerUserRegistrationDTO): boolean {
     return !!(
-      data.username &&
+      data.name &&
       data.password &&
       data.email &&
       data.masterId

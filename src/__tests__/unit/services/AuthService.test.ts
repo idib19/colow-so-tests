@@ -2,7 +2,7 @@ import { AuthService } from '../../../application/services/AuthService';
 import { UserRepository } from '../../../infrastructure/repositories/UserRepository';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { MasterRegistrationDTO, RegistrationDTO } from '../../../application/dtos/auth/RegisterDTO';
+import { MasterUserRegistrationDTO, RegistrationDTO } from '../../../application/dtos/auth/RegisterDTO';
 import { IUser } from '../../../domain/entities/User';
 // Mock the UserRepository
 jest.mock('../../../infrastructure/repositories/UserRepository');
@@ -115,7 +115,7 @@ describe('AuthService', () => {
   describe('registerMaster', () => {
     it('should create a master user successfully', async () => {
       const userData = {
-        username: 'testmaster',
+        name: 'testmaster',
         password: 'password123',
         email: 'master@test.com',
         role: 'master'
@@ -135,7 +135,7 @@ describe('AuthService', () => {
 
       mockUserRepository.create.mockResolvedValue(mockCreatedUser as any);
 
-      const result = await authService.registerMaster(userData as MasterRegistrationDTO);
+      const result = await authService.registerMaster(userData as MasterUserRegistrationDTO);
 
       expect(result).toEqual({ user: mockCreatedUser });
 

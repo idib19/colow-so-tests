@@ -2,7 +2,11 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User, IUser } from '../../domain/entities/User';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
-import { MasterRegistrationDTO, PartnerRegistrationDTO } from '../dtos/auth/RegisterDTO';
+<<<<<<< HEAD
+import { RegistrationDTO } from '../dtos/auth/RegisterDTO';
+=======
+import { MasterUserRegistrationDTO, PartnerUserRegistrationDTO } from '../dtos/auth/RegisterDTO';
+>>>>>>> 7e7bdce (Deleted .env file)
 
 interface LoginResponse {
   token: string;
@@ -31,7 +35,7 @@ export class AuthService {
         entityId: user.entityId 
       },
       process.env.JWT_SECRET!,
-      { expiresIn: '15m' }
+      { expiresIn: '1h' }
     );
   }
 
@@ -80,18 +84,23 @@ export class AuthService {
     return user;
   }
 
-  async registerMaster(userData: MasterRegistrationDTO) {
+<<<<<<< HEAD
+  async registerMaster(userData: RegistrationDTO) {
+=======
+  async registerMaster(userData: MasterUserRegistrationDTO) {
+>>>>>>> 7e7bdce (Deleted .env file)
     try {
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       const user = await this.userRepository.create(new User({
         ...userData,
+        username: userData.name,
         password: hashedPassword,
         role: 'master',
         isActive: true
       }));
 
       console.log("user created service: ", user);
-      
+
       return { user };
     } catch (error) {
       if (error instanceof Error) {
@@ -101,7 +110,11 @@ export class AuthService {
     }
   }
 
-  async registerPartner(userData: PartnerRegistrationDTO) {
+<<<<<<< HEAD
+  async registerPartner(userData: RegistrationDTO) {
+=======
+  async registerPartner(userData: PartnerUserRegistrationDTO) {
+>>>>>>> 7e7bdce (Deleted .env file)
     try {
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       const user = await this.userRepository.create(new User({
@@ -137,5 +150,9 @@ export class AuthService {
     await this.userRepository.update(userId, { password: hashedPassword });
     
     return true;
+  }
+
+  async getAllUsers(): Promise<IUser[]> {
+    return this.userRepository.findAll();
   }
 } 

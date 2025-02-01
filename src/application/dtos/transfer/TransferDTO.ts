@@ -1,7 +1,8 @@
 export interface CreateTransferDTO {
-  type: 1 | 2;  // Using numeric literal type for better type safety
   amount: number;
   issuerId: string;
+  receiverId: string;
+  type: 1 | 2;
 }
 
 export interface TransferResponseDTO {

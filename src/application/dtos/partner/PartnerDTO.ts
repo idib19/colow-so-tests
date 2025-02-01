@@ -1,6 +1,7 @@
 export interface CreatePartnerDTO {
   country: string;
   masterId: string;
+  userId: string;
 }
 
 export interface PartnerResponseDTO {
