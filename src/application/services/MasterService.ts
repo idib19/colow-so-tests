@@ -83,14 +83,13 @@ export class MasterService implements IMasterService {
       issuerModel: 'Master'
     });
 
-    // Use a session to ensure atomicity
     const session = await CardLoad.startSession();
     try {
       session.startTransaction();
       await cardLoad.save({ session });
       await Master.findByIdAndUpdate(
         master.id,
-        { $inc: { balance: cardLoadData.amount } },
+        { $inc: { balance: -cardLoadData.amount } },
         { session }
       );
       await session.commitTransaction();
@@ -101,6 +100,11 @@ export class MasterService implements IMasterService {
     } finally {
       session.endSession();
     }
+  }
+
+  async getCardLoads(masterId: string) {
+    const cardLoads = await CardLoad.find({issuerId: masterId});
+    return cardLoads;
   }
 
   async createTransfer(transferData: any) {
