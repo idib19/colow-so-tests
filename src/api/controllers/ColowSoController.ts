@@ -1,11 +1,7 @@
 import { Request, Response } from 'express';
 import { ColowSoService } from '../../application/services/ColowSoService';
-<<<<<<< HEAD
 import { CreateMasterDTO, CreateTransferDTO } from '../../application/dtos';
 import { AuthRequest } from '../middleware/auth.middleware';
-=======
-import { CreateMasterDTO } from '../../application/dtos';
->>>>>>> 7e7bdce (Deleted .env file)
 
 export class ColowSoController {
   private service: ColowSoService;
@@ -17,7 +13,6 @@ export class ColowSoController {
   // this function is to create a master account 
   // note that this is different from the master registration wich is creating a user of type master 
   // master account and user's are different entities linked by the entityId 
-<<<<<<< HEAD
   createMasterAccount = async (req: AuthRequest, res: Response) => {
     try {
     
@@ -63,21 +58,7 @@ export class ColowSoController {
   };
 
   loadMasterAccount = async (req: AuthRequest, res: Response) => {
-=======
-  createMaster = async (req: Request, res: Response) => {
     try {
-      const masterData: CreateMasterDTO = req.body;
-      await this.service.createMaster(masterData);
-      res.status(201).json({ message: 'Master created successfully' });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to create master' });
-    }
-  };
-
-  loadMasterAccount = async (req: Request, res: Response) => {
->>>>>>> 7e7bdce (Deleted .env file)
-    try {
-
       const user = req.user;
       if (!user) {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -101,7 +82,6 @@ export class ColowSoController {
       await this.service.loadMasterAccount(receiverId, amount, issuerId, type);
 
       res.status(200).json({ message: 'Master account loaded successfully' });
-      
     } catch (error) {
       res.status(500).json({ error: 'Failed to load master account' });
     }
