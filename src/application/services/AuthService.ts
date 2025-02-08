@@ -2,11 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User, IUser } from '../../domain/entities/User';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
-<<<<<<< HEAD
-import { RegistrationDTO } from '../dtos/auth/RegisterDTO';
-=======
 import { MasterUserRegistrationDTO, PartnerUserRegistrationDTO } from '../dtos/auth/RegisterDTO';
->>>>>>> 7e7bdce (Deleted .env file)
 
 interface LoginResponse {
   token: string;
@@ -84,11 +80,7 @@ export class AuthService {
     return user;
   }
 
-<<<<<<< HEAD
-  async registerMaster(userData: RegistrationDTO) {
-=======
   async registerMaster(userData: MasterUserRegistrationDTO) {
->>>>>>> 7e7bdce (Deleted .env file)
     try {
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       const user = await this.userRepository.create(new User({
@@ -110,11 +102,7 @@ export class AuthService {
     }
   }
 
-<<<<<<< HEAD
-  async registerPartner(userData: RegistrationDTO) {
-=======
   async registerPartner(userData: PartnerUserRegistrationDTO) {
->>>>>>> 7e7bdce (Deleted .env file)
     try {
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       const user = await this.userRepository.create(new User({

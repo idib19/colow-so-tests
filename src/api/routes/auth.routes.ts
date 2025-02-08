@@ -9,10 +9,7 @@ const authController = new AuthController();
 router.post('/login', authController.login);
 
 // Protected routes
-<<<<<<< HEAD
 router.get('/users', authMiddleware(['admin-colowso']), authController.getAllUsers);
-=======
->>>>>>> 7e7bdce (Deleted .env file)
 router.post('/register/master', authMiddleware(['admin-colowso']), authController.registerUserMaster);
 router.post('/register/partner', authMiddleware(['master', 'admin-colowso']), authController.registerUserPartner);
 router.post('/change-password', authMiddleware(['master', 'partner', 'admin-colowso']), authController.changePassword);
