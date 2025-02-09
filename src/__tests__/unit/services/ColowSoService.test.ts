@@ -18,7 +18,7 @@ describe('ColowSoService', () => {
       expect(master).toBeDefined();
 
       // Load the master account with specified amount
-      await service.loadMasterAccount(master._id.toString(), 1000 );
+      await service.loadMasterAccount(master._id.toString(), 1000,'test-user-id', 1);
 
       // Check if the master account is updated
       const updatedMaster = await Master.findById(master._id);
