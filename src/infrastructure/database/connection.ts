@@ -3,14 +3,17 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/fintech';
+const mongoURI = process.env.MONGODB_URI;
+if (!mongoURI) {
+  throw new Error('MONGODB_URI environment variable is not defined');
+}
 
 export const connectDB = async (): Promise<void> => {
   try {
     // Only connect if we're not already connected
     if (mongoose.connection.readyState === 0) {
       console.log('Attempting to connect to MongoDB...'); // Debug log
-      await mongoose.connect(MONGODB_URI, {
+      await mongoose.connect(mongoURI, {
         serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds instead of 10
         connectTimeoutMS: 10000, // Give up initial connection after 10 seconds
       });
